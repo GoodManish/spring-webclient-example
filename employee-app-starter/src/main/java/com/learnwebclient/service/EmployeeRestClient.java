@@ -1,12 +1,15 @@
 package com.learnwebclient.service;
 
-import com.learnwebclient.constants.EmployeeConstants;
 import com.learnwebclient.dto.Employee;
+import com.learnwebclient.service.client.exception.ClientDataException;
+import com.learnwebclient.service.client.exception.EmployeeServiceException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -32,6 +35,18 @@ public class EmployeeRestClient {
 
     }
 
+    //http://localhost:8081/employeeservice/v1/employee/error
+    public String errorEndpoint(){
+        return webClient.get()
+                .uri(ERROR_ENDPOINT)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, clientResponse -> handle4xxError(clientResponse))
+                .onStatus(HttpStatus::is5xxServerError, clientResponse -> handle5xxError(clientResponse))
+                .bodyToMono(String.class)
+                .block();
+
+    }
+
     // http://localhost:8081/employeeservice/v1/employee/{id}
     public Employee getEmployeeById(Integer employeeId){
         try {
@@ -48,6 +63,34 @@ public class EmployeeRestClient {
             log.error("Exception in getEmployeeById()",e);
             throw e;
         }
+
+    }
+    public Employee getEmployeeById_custom_error_handler(Integer employeeId){
+
+        return webClient.get()
+                .uri(EMPLOYEE_BY_ID_V1, employeeId)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, clientResponse -> handle4xxError(clientResponse))
+                .onStatus(HttpStatus::is5xxServerError, clientResponse -> handle5xxError(clientResponse))
+                .bodyToMono(Employee.class)
+                .block();
+
+    }
+
+    private Mono<? extends Throwable> handle5xxError(ClientResponse clientResponse) {
+        Mono<String> errMsg = clientResponse.bodyToMono(String.class);
+        return errMsg.flatMap(msg -> {
+            log.error("Response StatusCode is: {} // error message is : {}", clientResponse.rawStatusCode(), msg);
+            throw new EmployeeServiceException(msg);
+        });
+    }
+
+    private Mono<? extends Throwable> handle4xxError(ClientResponse clientResponse) {
+        Mono<String> errMsg = clientResponse.bodyToMono(String.class);
+        return errMsg.flatMap(msg -> {
+            log.error("Response StatusCode is: {} // error message is : {}", clientResponse.rawStatusCode(), msg);
+            throw new ClientDataException(msg);
+        });
 
     }
 

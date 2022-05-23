@@ -1,8 +1,9 @@
 package com.learnwebclient.service;
 
 import com.learnwebclient.dto.Employee;
+import com.learnwebclient.service.client.exception.ClientDataException;
+import com.learnwebclient.service.client.exception.EmployeeServiceException;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -41,7 +42,16 @@ public class EmployeeRestClientTest {
         int employeeId = 10;
         assertThrows(WebClientResponseException.class, ()-> employeeRestClient.getEmployeeById(employeeId));
     }
-
+    @Test
+    void retrieveEmployeeById_with_custom_4xx_error_handler(){
+        int employeeId = 10;
+        assertThrows(ClientDataException.class, ()-> employeeRestClient.getEmployeeById_custom_error_handler(employeeId));
+    }
+    @Test
+    void retrieveEmployeeById_with_custom_5xx_error_handler(){
+        int employeeId = 10;
+        assertThrows(EmployeeServiceException.class, ()-> employeeRestClient.errorEndpoint());
+    }
     @Test
     void retrieveEmployeByName_Found(){
         String employeeName = "Chris";
