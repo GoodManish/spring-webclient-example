@@ -12,10 +12,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EmployeeRestClientTest {
+class EmployeeRestClientTest {
 
-    private String baseUrl = "http://localhost:8081/employeeservice";
-    private WebClient webClient = WebClient.create(baseUrl);
+    private final String baseUrl = "http://localhost:8081/employeeservice";
+    private final WebClient webClient = WebClient.create(baseUrl);
 
     EmployeeRestClient employeeRestClient = new EmployeeRestClient(webClient);
 
@@ -32,7 +32,7 @@ public class EmployeeRestClientTest {
     void retrieveEmployeById_Found(){
         Employee employee = employeeRestClient.getEmployeeById(1);
         System.out.println(employee);
-        assertTrue(employee!=null);
+        assertNotNull(employee);
         assertTrue(employee.getFirstName().equalsIgnoreCase("Chris"));
         assertTrue(employee.getLastName().equalsIgnoreCase("Evans"));
     }
@@ -57,7 +57,7 @@ public class EmployeeRestClientTest {
         String employeeName = "Chris";
         List<Employee> employees = employeeRestClient.getEmployeeByName(employeeName);
         System.out.println(employees);
-        assertTrue(employees!=null);
+        assertNotNull(employees);
         assertTrue(employees.stream()
                 .anyMatch(emp-> emp.getFirstName().equalsIgnoreCase("chris")));
         assertTrue(employees.stream()
@@ -78,9 +78,9 @@ public class EmployeeRestClientTest {
         Employee employee = employeeRestClient.addEmployee(e);
         System.out.println(employee);
 
-        assertTrue(employee!=null);
-        assertTrue(employee.getId()!=null);
-        assertEquals(employee.getFirstName(), "Rakesh");
+        assertNotNull(employee);
+        assertNotNull(employee.getId());
+        assertEquals("Rakesh", employee.getFirstName());
     }
     @Test
     void addEmployee_negetive(){
@@ -98,7 +98,7 @@ public class EmployeeRestClientTest {
         Employee employee = employeeRestClient.updateEmployee(11, emp);
         System.out.println(employee);
 
-        assertEquals(employee.getAge(), 100);
+        assertEquals(100, employee.getAge());
 
     }
 
@@ -119,7 +119,7 @@ public class EmployeeRestClientTest {
         Employee actual = employeeRestClient.addEmployee(e);
         System.out.println("Actual - "+actual);
         String expected = employeeRestClient.deleteEmployee(actual.getId());
-        assertEquals(expected, "Employee deleted successfully");
+        assertEquals("Employee deleted successfully", expected);
 
     }
 }

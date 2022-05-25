@@ -18,7 +18,7 @@ import static com.learnwebclient.constants.EmployeeConstants.*;
 @Slf4j
 public class EmployeeRestClient {
 
-    private WebClient webClient;
+    private final WebClient webClient;
 
     public EmployeeRestClient(WebClient webClient) {
         this.webClient = webClient;
